@@ -23,6 +23,7 @@ import OperationConfig from "../core/config/OperationConfig.json" assert {type: 
 
 /**
  * Main function used to build the CyberChef web app.
+ * 用于构建CyberChef网络应用程序的主要功能。
  */
 function main() {
     const defaultFavourites = [
@@ -59,10 +60,11 @@ function main() {
     window.app.setup();
 }
 
-window.compileTime = moment.tz(COMPILE_TIME, "DD/MM/YYYY HH:mm:ss z", "UTC").valueOf();
+window.compileTime = moment.tz(COMPILE_TIME, "YYYY/MM/DD HH:mm:ss z", "UTC").valueOf();
 window.compileMessage = COMPILE_MSG;
 
 // Make libs available to operation outputs
+// 使libs可用于操作输出
 window.CanvasComponents = CanvasComponents;
 
 document.addEventListener("DOMContentLoaded", main, false);
