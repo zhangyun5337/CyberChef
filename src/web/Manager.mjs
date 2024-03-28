@@ -22,6 +22,7 @@ import TimingWaiter from "./waiters/TimingWaiter.mjs";
 
 /**
  * This object controls the Waiters responsible for handling events from all areas of the app.
+ * 此控制对象负责处理来自应用程序所有区域的事件的服务。
  */
 class Manager {
 
@@ -76,6 +77,7 @@ class Manager {
         this.background  = new BackgroundWorkerWaiter(this.app, this);
 
         // Object to store dynamic handlers to fire on elements that may not exist yet
+        // 对象来存储要在可能还不存在的元素上激发的动态处理程序
         this.dynamicHandlers = {};
 
         this.initialiseEventListeners();
@@ -84,6 +86,7 @@ class Manager {
 
     /**
      * Sets up the various components and listeners.
+     * 设置各种组件和侦听器。
      */
     setup() {
         this.input.setupInputWorker();
@@ -101,6 +104,7 @@ class Manager {
 
     /**
      * Confirms that all Waiters have loaded correctly.
+     * 确认所有服务已正确装载。
      */
     confirmWaitersLoaded() {
         if (this.tabs.getActiveTab("input") >= 0 &&
@@ -110,6 +114,7 @@ class Manager {
             this.app.loaded();
         } else {
             // Not loaded yet, try again soon
+            // 尚未加载，请稍后重试
             setTimeout(this.confirmWaitersLoaded.bind(this), 10);
         }
     }
@@ -117,16 +122,17 @@ class Manager {
 
     /**
      * Main function to handle the creation of the event listeners.
+     * 主要功能是创建处理事件的监听器。
      */
     initialiseEventListeners() {
-        // Global
+        // Global 全局
         window.addEventListener("resize", this.window.windowResize.bind(this.window));
         window.addEventListener("blur", this.window.windowBlur.bind(this.window));
         window.addEventListener("focus", this.window.windowFocus.bind(this.window));
         window.addEventListener("statechange", this.app.stateChange.bind(this.app));
         window.addEventListener("popstate", this.app.popState.bind(this.app));
 
-        // Controls
+        // Controls 控制
         document.getElementById("bake").addEventListener("click", this.controls.bakeClick.bind(this.controls));
         document.getElementById("auto-bake").addEventListener("change", this.controls.autoBakeChange.bind(this.controls));
         document.getElementById("step").addEventListener("click", this.controls.stepClick.bind(this.controls));
@@ -142,7 +148,7 @@ class Manager {
         document.getElementById("support").addEventListener("click", this.controls.supportButtonClick.bind(this.controls));
         this.addMultiEventListeners("#save-texts textarea", "keyup paste", this.controls.saveTextChange, this.controls);
 
-        // Operations
+        // 业务操作
         this.addMultiEventListener("#search", "keyup paste search", this.ops.searchOperations, this.ops);
         this.addDynamicListener(".op-list li.operation", "dblclick", this.ops.operationDblclick, this.ops);
         document.getElementById("edit-favourites").addEventListener("click", this.ops.editFavouritesClick.bind(this.ops));
@@ -151,7 +157,7 @@ class Manager {
         this.addDynamicListener(".op-list", "oplistcreate", this.ops.opListCreate, this.ops);
         this.addDynamicListener("li.operation", "operationadd", this.recipe.opAdd, this.recipe);
 
-        // Recipe
+        // Recipe 
         this.addDynamicListener(".arg:not(select)", "input", this.recipe.ingChange, this.recipe);
         this.addDynamicListener(".arg[type=checkbox], .arg[type=radio], select.arg", "change", this.recipe.ingChange, this.recipe);
         this.addDynamicListener(".disable-icon", "click", this.recipe.disableClick, this.recipe);
@@ -164,7 +170,7 @@ class Manager {
         this.addDynamicListener("textarea.arg", "dragleave", this.recipe.textArgDragLeave, this.recipe);
         this.addDynamicListener("textarea.arg", "drop", this.recipe.textArgDrop, this.recipe);
 
-        // Input
+        // Input 输入
         document.getElementById("reset-layout").addEventListener("click", this.app.resetLayout.bind(this.app));
         this.addListeners("#clr-io,#btn-close-all-tabs", "click", this.input.clearAllIoClick, this.input);
         this.addListeners("#open-file,#open-folder", "change", this.input.inputOpen, this.input);
@@ -193,7 +199,7 @@ class Manager {
         this.addDynamicListener(".input-filter-result", "click", this.input.filterItemClick, this.input);
 
 
-        // Output
+        // Output 输出
         document.getElementById("save-to-file").addEventListener("click", this.output.saveClick.bind(this.output));
         document.getElementById("save-all-to-file").addEventListener("click", this.output.saveAllClick.bind(this.output));
         document.getElementById("copy-output").addEventListener("click", this.output.copyClick.bind(this.output));
@@ -221,7 +227,7 @@ class Manager {
         this.addDynamicListener(".output-filter-result", "click", this.output.filterItemClick, this.output);
 
 
-        // Options
+        // Options 选项
         document.getElementById("options").addEventListener("click", this.options.optionsClick.bind(this.options));
         document.getElementById("reset-options").addEventListener("click", this.options.resetOptionsClick.bind(this.options));
         this.addDynamicListener(".option-item input[type=checkbox]", "change", this.options.switchChange, this.options);
@@ -233,7 +239,7 @@ class Manager {
         document.getElementById("theme").addEventListener("change", this.options.themeChange.bind(this.options));
         document.getElementById("logLevel").addEventListener("change", this.options.logLevelChange.bind(this.options));
 
-        // Misc
+        // Misc 杂项
         window.addEventListener("keydown", this.bindings.parseInput.bind(this.bindings));
     }
 
@@ -250,6 +256,17 @@ class Manager {
      * @example
      * // Calls the clickable function whenever any element with the .clickable class is clicked
      * this.addListeners(".clickable", "click", this.clickable, this);
+     *为指定组中的每个元素添加事件监听器。
+     *
+     * @param {string} selector—用于添加事件的元素组的选择器字符串，参见
+     * this.getAll ()
+     * @param {string} eventType—要监听的事件
+     * @param {function}回调——事件触发时执行的函数
+     * @param {Object} [scope=this]——绑定到回调函数的对象
+     *
+     * @example
+     * //当任何具有。clickable类的元素被单击时，都会调用clickable函数
+     * this.addListeners(”。Clickable "， "click"，这个。可点击,这个);
      */
     addListeners(selector, eventType, callback, scope) {
         scope = scope || this;
@@ -271,6 +288,17 @@ class Manager {
      * // Calls the search function whenever the the keyup, paste or search events are triggered on the
      * // search element
      * this.addMultiEventListener("search", "keyup paste search", this.search, this);
+     *为指定元素添加多个事件监听器。
+     *
+     * @param {string} selector—用于添加事件的元素的选择器字符串
+     * @param {string} eventTypes—空格分隔的字符串，表示要监听的所有事件类型
+     * @param {function}回调——事件触发时执行的函数
+     * @param {Object} [scope=this]——绑定到回调函数的对象
+     *
+     * @example
+     * //每当在上触发keyup、paste或search事件时，都会调用search函数
+     * //搜索元素
+     * this.addMultiEventListener("search", "keyup paste search", this.search, this);;
      */
     addMultiEventListener(selector, eventTypes, callback, scope) {
         const evs = eventTypes.split(" ");
@@ -304,15 +332,21 @@ class Manager {
     /**
      * Adds an event listener to the global document object which will listen on dynamic elements which
      * may not exist in the DOM yet.
+     * 为全局document对象添加一个事件监听器，监听DOM中可能还不存在的动态元素。
      *
      * @param {string} selector - A selector string for the element(s) to add the event to
+     * @param {string} selector:表示要添加事件的元素的选择器字符串
      * @param {string} eventType - The event(s) to listen for
+     * @param {string} eventType:要监听的事件
      * @param {function} callback - The function to execute when the event(s) is/are triggered
+     * @param {function}回调——当事件被触发时执行的函数
      * @param {Object} [scope=this] - The object to bind to the callback function
+     * @param {Object} [scope=this]—绑定到回调函数的对象
      *
      * @example
      * // Pops up an alert whenever any button is clicked, even if it is added to the DOM after this
      * // listener is created
+     * // 无论何时单击任何按钮，即使在创建此侦听器后将其添加到DOM中，也会弹出警告
      * this.addDynamicListener("button", "click", alert, this);
      */
     addDynamicListener(selector, eventType, callback, scope) {
@@ -323,6 +357,7 @@ class Manager {
 
         if (Object.prototype.hasOwnProperty.call(this.dynamicHandlers, eventType)) {
             // Listener already exists, add new handler to the appropriate list
+            // 监听器已经存在，添加新的处理程序到相应的列表
             this.dynamicHandlers[eventType].push(eventConfig);
         } else {
             this.dynamicHandlers[eventType] = [eventConfig];
@@ -335,8 +370,10 @@ class Manager {
     /**
      * Handler for dynamic events. This function is called for any dynamic event and decides which
      * callback(s) to execute based on the type and selector.
+     * 动态事件的处理程序。任何动态事件都会调用这个函数，并根据类型和选择器决定执行哪个回调函数。
      *
      * @param {Event} e - The event to be handled
+     * @param {Event} e:要处理的事件
      */
     dynamicListenerHandler(e) {
         const { type, target } = e;
